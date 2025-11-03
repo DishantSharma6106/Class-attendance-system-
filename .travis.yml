@@ -1,0 +1,11 @@
+sudo: false
+language:
+  - python
+python:
+  - "3.6.9"
+before_install:
+  - pip install -r requirements.txt
+script:
+  - python tests.py --verbose
+notifications:
+  email: false

@@ -1,0 +1,423 @@
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+#:import IconLabel kivy.uix.label
+#:import rgba kivy.utils.get_color_from_hex
+
+<CustomButton@Button>:
+    background_color: 0,0,0,0
+    background_normal: ''
+    size_hint: 0.8, None
+    height: 50
+    canvas.before:
+        Color:
+            rgba: rgba('#6366f1') if self.state == 'normal' else rgba('#4f46e5')
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [15]
+    color: rgba('#ffffff')
+    font_size: '16sp'
+    font_name: 'Roboto'
+    bold: True
+
+<CustomTextInput@TextInput>:
+    size_hint: 0.8, None
+    height: 50
+    background_color: rgba('#f8fafc')
+    background_normal: ''
+    background_active: ''
+    foreground_color: rgba('#1e293b')
+    padding: [15, 15]
+    font_size: '16sp'
+    font_name: 'Roboto'
+    multiline: False
+    canvas.before:
+        Color:
+            rgba: rgba('#e2e8f0')
+        Line:
+            width: 1.5
+            rounded_rectangle: [self.x, self.y, self.width, self.height, 10]
+
+<HeaderLabel@Label>:
+    font_size: '28sp'
+    font_name: 'Roboto'
+    bold: True
+    color: rgba('#1e293b')
+    size_hint_y: None
+    height: 60
+
+<InfoLabel@Label>:
+    font_size: '14sp'
+    font_name: 'Roboto'
+    color: rgba('#64748b')
+    size_hint_y: None
+    height: 40
+    text_size: self.width, None
+
+<CameraDisplay@Image>:
+    size_hint: 0.9, 0.7
+    allow_stretch: True
+    keep_ratio: True
+    canvas.before:
+        Color:
+            rgba: rgba('#e2e8f0')
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [20]
+
+WindowManager:
+    transition: FadeTransition(duration=0.2)
+
+    MainWindow:
+        name: "main"
+
+    AttendenceWindow:
+        name: "attendence"
+
+    DatasetWindow:
+        name: "dataset"
+
+<MainWindow>:
+    camera_display: camera_display
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 10, 20, 20]
+        spacing: 20
+
+        BoxLayout:
+            size_hint_y: None
+            height: 80
+            spacing: 20
+
+            Label:
+                text: "Face Recognition System"
+                font_size: '32sp'
+                font_name: 'Roboto'
+                bold: True
+                color: rgba('#1e293b')
+                size_hint_x: 0.7
+
+            BoxLayout:
+                size_hint_x: 0.3
+                spacing: 10
+
+                CustomButton:
+                    text: "Settings"
+                    size_hint_x: 0.5
+                    on_release: app.show_message("Settings panel coming soon", "main")
+
+                CustomButton:
+                    text: "Exit"
+                    size_hint_x: 0.5
+                    background_color: rgba('#ef4444')
+                    on_release: app.stop()
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 30
+
+            # Left Panel - Controls
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.35
+                spacing: 20
+
+                HeaderLabel:
+                    text: "System Controls"
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: 15
+                    size_hint_y: 0.6
+
+                    CustomButton:
+                        text: "Start Attendance"
+                        on_release: app.startAttendence()
+
+                    CustomButton:
+                        text: "Stop System"
+                        background_color: rgba('#ef4444')
+                        on_release: app.break_loop()
+
+                    CustomButton:
+                        text: "Train Model"
+                        on_release: app.startTrain()
+
+                    CustomButton:
+                        text: "Manage Dataset"
+                        on_release: root.manager.current = "dataset"
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: 15
+                    size_hint_y: 0.4
+
+                    HeaderLabel:
+                        text: "Quick Access"
+                        font_size: '22sp'
+
+                    CustomButton:
+                        text: "View Users"
+                        background_color: rgba('#10b981')
+                        on_release: app.UserList()
+
+                    CustomButton:
+                        text: "View Attendance"
+                        background_color: rgba('#f59e0b')
+                        on_release: app.AttendanceList()
+
+            # Right Panel - Camera and Info
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.65
+                spacing: 20
+
+                HeaderLabel:
+                    text: "Live Camera Feed"
+
+                BoxLayout:
+                    padding: [10, 10]
+
+                    CameraDisplay:
+                        id: camera_display
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 100
+                    padding: [20, 10]
+                    canvas.before:
+                        Color:
+                            rgba: rgba('#f1f5f9')
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [15]
+
+                    InfoLabel:
+                        id: info
+                        text: "System ready. Click 'Start Attendance' to begin."
+                        color: rgba('#059669')
+                        font_size: '16sp'
+                        bold: True
+
+<AttendenceWindow>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 10, 20, 20]
+        spacing: 20
+
+        BoxLayout:
+            size_hint_y: None
+            height: 60
+            spacing: 20
+
+            CustomButton:
+                text: "← Back"
+                size_hint_x: 0.2
+                on_release: app.root.current = "main"
+
+            Label:
+                text: "Attendance Monitoring"
+                font_size: '28sp'
+                font_name: 'Roboto'
+                bold: True
+                color: rgba('#1e293b')
+                size_hint_x: 0.6
+
+            BoxLayout:
+                size_hint_x: 0.2
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 30
+
+            # Left Panel - Stats
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.3
+                spacing: 15
+
+                HeaderLabel:
+                    text: "Live Stats"
+                    font_size: '24sp'
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: 10
+                    padding: [15, 15]
+                    canvas.before:
+                        Color:
+                            rgba: rgba('#f8fafc')
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [15]
+
+                    InfoLabel:
+                        text: "Faces Detected: 0"
+                        color: rgba('#3b82f6')
+
+                    InfoLabel:
+                        text: "Recognized: 0"
+                        color: rgba('#10b981')
+
+                    InfoLabel:
+                        text: "Unknown: 0"
+                        color: rgba('#f59e0b')
+
+                    InfoLabel:
+                        text: "Spoofs: 0"
+                        color: rgba('#ef4444')
+
+                CustomButton:
+                    text: "Export Report"
+                    background_color: rgba('#8b5cf6')
+                    on_release: app.show_message("Export feature coming soon", "attendence")
+
+            # Right Panel - Camera
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.7
+                spacing: 15
+
+                CameraDisplay:
+                    id: camera_display
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 80
+                    padding: [20, 10]
+                    canvas.before:
+                        Color:
+                            rgba: rgba('#f1f5f9')
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [15]
+
+                    InfoLabel:
+                        id: info
+                        text: "Attendance monitoring active"
+                        color: rgba('#059669')
+                        font_size: '16sp'
+                        bold: True
+
+<DatasetWindow>:
+    camera_display: camera_display
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: [20, 10, 20, 20]
+        spacing: 20
+
+        BoxLayout:
+            size_hint_y: None
+            height: 60
+            spacing: 20
+
+            CustomButton:
+                text: "← Back"
+                size_hint_x: 0.2
+                on_release: app.root.current = "main"
+
+            Label:
+                text: "Dataset Collection"
+                font_size: '28sp'
+                font_name: 'Roboto'
+                bold: True
+                color: rgba('#1e293b')
+                size_hint_x: 0.6
+
+            BoxLayout:
+                size_hint_x: 0.2
+
+        BoxLayout:
+            orientation: 'horizontal'
+            spacing: 30
+
+            # Left Panel - User Input
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.35
+                spacing: 20
+
+                HeaderLabel:
+                    text: "User Details"
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: 15
+                    padding: [0, 20, 0, 0]
+
+                    InfoLabel:
+                        text: "User ID (Number):"
+                        color: rgba('#374151')
+
+                    CustomTextInput:
+                        id: user_id
+                        hint_text: "Enter user ID"
+
+                    InfoLabel:
+                        text: "Full Name:"
+                        color: rgba('#374151')
+
+                    CustomTextInput:
+                        id: user_name
+                        hint_text: "Enter full name"
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: 15
+                    size_hint_y: 0.4
+
+                    CustomButton:
+                        text: "Start Collection"
+                        background_color: rgba('#10b981')
+                        on_release: app.startDataset()
+
+                    CustomButton:
+                        text: "Stop Collection"
+                        background_color: rgba('#ef4444')
+                        on_release: app.break_loop()
+
+                    CustomButton:
+                        text: "Clear Fields"
+                        background_color: rgba('#6b7280')
+                        on_release:
+                            user_id.text = ''
+                            user_name.text = ''
+
+            # Right Panel - Camera and Info
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_x: 0.65
+                spacing: 20
+
+                HeaderLabel:
+                    text: "Camera Preview"
+
+                CameraDisplay:
+                    id: camera_display
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 100
+                    padding: [20, 10]
+                    canvas.before:
+                        Color:
+                            rgba: rgba('#f1f5f9')
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [15]
+
+                    InfoLabel:
+                        id: info
+                        text: "Enter user details and start collection"
+                        color: rgba('#059669')
+                        font_size: '16sp'
+                        bold: True
